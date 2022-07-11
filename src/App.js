@@ -1,10 +1,14 @@
-import React, { useEffect, useState ,useReducer} from "react";
+import React, {useState} from "react";
+import { Modal, Button } from "react-bootstrap";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-// import axios from  'axios'
 import './App.css';
 
+
+
+
 function App() {
-  const [users, fetchUsers] = useState([])
+ 
   const [vaccineResultsArr, setVaccineResultsArr]=useState([])
   
 
@@ -57,7 +61,7 @@ function App() {
         const fetchedCovaxinResultsJson = await fetchedCovaxinResults.json();
         console.log(fetchedCovaxinResultsJson.centers.length)
 
-        //filtering result array based on date in sessions in response obj
+        
         const filteredResultArr=fetchedCovaxinResultsJson.centers.filter(
           (eachItem)=>{
             return (eachItem.sessions[0].date===reqDateFormat)
@@ -65,14 +69,27 @@ function App() {
         )
         setVaccineResultsArr(filteredResultArr)
         console.log(filteredResultArr.length)
+        if(filteredResultArr.length===0){
+          handleShow()
+        }
   }
 
 
 
   const submitHandler=()=>{
     getData()
+    
   }
     
+
+  const [popupShow, setPopupShow] = useState(false);
+
+  const handleClose = () => setPopupShow(false);
+  const handleShow = () => setPopupShow(true);
+
+
+  
+
 
   return (
     <>
@@ -85,6 +102,22 @@ function App() {
       onClick={submitHandler}
       >Submit</button>
      </div>
+     
+     <div>
+     <Modal show={popupShow} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Result</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>No data available for this date!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={handleClose}>
+            OK
+          </Button>
+         
+        </Modal.Footer>
+      </Modal>
+      </div>
+
       <div className="header">
         <table>
       <thead>
@@ -98,29 +131,27 @@ function App() {
            </tr>
        </thead>
        <tbody>
-                {vaccineResultsArr.map((eachVaccineCenter,index) =>{
+                {
+              
+                (vaccineResultsArr.map((eachVaccineCenter,index) =>{
                 return (    
-              <tr key={eachVaccineCenter.center_id}>
+              <tr className="table-body-item" key={eachVaccineCenter.center_id}>
              
-                <td>{eachVaccineCenter.center_id}</td>
-                <td>{eachVaccineCenter.name}</td>
-                <td>{eachVaccineCenter.sessions[0].vaccine}</td>
-                <td>{eachVaccineCenter.sessions[0].available_capacity}</td>
-                <td>{eachVaccineCenter.sessions[0].slots.map(
+                <td className="table-body-item">{eachVaccineCenter.center_id}</td>
+                <td className="table-body-item">{eachVaccineCenter.name}</td>
+                <td className="table-body-item">{eachVaccineCenter.sessions[0].vaccine}</td>
+                <td className="table-body-item">{eachVaccineCenter.sessions[0].available_capacity}</td>
+                <td className="table-body-item">{eachVaccineCenter.sessions[0].slots.map(
                   (eachTImeSlot)=>{
                     return (<div>
                       <p>{eachTImeSlot.time}</p>
                     </div>)
                   }
                 )}</td>
-                {/* <th >{item.mas_firstName}</th>
-                <th >{item.mas_lastName}</th>
-                <th >{item.mas_schoolName}</th>
-                <th >{item.mas_createdOn}</th>
-                <th >{item.mas_kidStatus}</th> */}
+                
               </tr>
                 );
-               })}
+               }))}
             </tbody>
           </table>
        </div>
